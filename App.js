@@ -1,97 +1,65 @@
 import React, { Component } from 'react';
 import './App.css';
+import Button from './components/Button';
 
-class App extends Component {
-         
-    constructor(props){
-        super(props);
-        this.state = {
-            products : [
-            {
-                id : 1,
-                name : 'Apple Iphone 6 plus 16GB',
-                price : 15000000,
-                image :'https://bachlongmobile.com/media/catalog/product/cache/2/image/040ec09b1e35df139433887a97daa66f/6/0/600_ip6_gold_800x800_1_3.jpg',
-                status : true 
-            },      
-            {
-                id : 2,
-                name : 'Samsung Galaxy S7',
-                price : 12000000,
-                image : 'https://cdn.tgdd.vn/Products/Images/42/75180/samsung-galaxy-s7-edge-blue-coral-edition-400x460-400x460.png',
-                status : true
-            },
-            {
-                id : 3,
-                name : 'Oppo F1s',
-                price : 7000000,
-                image : 'https://cdn.fptshop.com.vn/Uploads/Originals/2017/2/9/636222506137676408_f1s-2.jpg',
-                status : true
-            }
-            ],
-            isActive: true
-        };
-        //this.onSetState=this.onSetState.bind(this);
-    }
-    onSetState=() => {
-        this.setState({
-            isActive : !this.state.isActive
-        });
-    }
-    render(){ 
-            let elements = this.state.products.map((product, index) => {
-                let result = '';
-                if (product.status){
-                     result=  <tr key={index}>
-                                    <td>{index}</td>
-                                    <td>{product.name}</td>
-                                    <td>
-                                        <span className="label label-success">{product.price} VND</span>
-                                     </td>
-                                </tr>
-                      
-                }
-                return result;
-            });  
-        return ( 
-            <div >
-                <nav className="navbar navbar-inverse">
-                    <div className="container-fluid">
-                        <a className="navbar-brand" href="">Trang chủ</a>
-                        <ul className="nav navbar-nav">
-                            <li className="active">
-                                <a href="">Sản phẩm</a>
-                            </li>
-                            <li>
-                                <a href="" >About</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div className="container">
-                    <div className="row">
-                        <div classname="row">
-                            <table className="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>STT</th>
-                                        <th>Sản phẩm</th>
-                                        <th>Giá</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {elements}
-                                </tbody>
-                            </table>
-                            <button type="button" class="btn btn-warning" onClick={this.onSetState}>
-                                Active : {this.state.isActive === true ? 'true' : 'false'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-             </div>
-        );
-     }
-}
+class App extends React.Component{
+	constructor(props){
+		super(props);
+		this.state ={
+			quotes: [],
+			selectedQuoteIndex: null
+		}
+		this.selectQuoteIndex= this.selectQuoteIndex.bind(this);
+		this.nextQuoteClickHandler= this.nextQuoteClickHandler.bind(this);
+	}
+	componentDidMount(){
+		fetch('https://gist.githubusercontent.com/natebass/b0a548425a73bdf8ea5c618149fe1fce/raw/f4231cd5961f026264bb6bb3a6c41671b044f1f4/quotes.json')
+		.then(data => data.json())
+		.then(quotes => this.setState({quotes}, this.nextQuoteClickHandler));
+	}
+	get selectedQuote(){
+		if( !this.state.quotes.length || !Number.isInteger(this.state.selectedQuoteIndex)){
+			return;
+		}
+		return this.state.quotes[this.state.selectedQuoteIndex];
+	}
+	nextQuoteClickHandler(){
+		 this.setState({selectedQuoteIndex: this.selectQuoteIndex()});
+	}
+	selectQuoteIndex(){
+		if(!this.state.quotes.length){
+			return;
+		}
+		return Math.floor(Math.random()*this.state.quotes.length);
+	}
+
+    render(){
+    	
+        return(
+		        <div className="wrapper">	
+		        	<div className="quote-box">
+		        		 
+		        		<br /> 
+		        		
+		        		<div className="text">
+		        			{this.selectedQuote ? `"${this.selectedQuote.quote}"` :''}
+		        		</div>
+		        		<div className="author">
+		        			- {this.selectedQuote ? `${this.selectedQuote.author}`  :''}
+		        		</div>
+		        		<div className="buttons">
+		        				<a className="button" id="tweet-quote" title="Tweet this quote!" target="_blank">
+		        					<i className="fab fa-twitter"></i>
+		        				</a>
+		        				<a className="button" id="tumblr-quote" title="Post this on tumblr!" target="_blank">
+		        					<i className="fab fa-tumblr"></i>
+		        				</a>
+		        		</div>
+		        		<Button className="next-quote" id="new-quote" buttonDisplayName="Next Quote" clickHandler={this.nextQuoteClickHandler} />
+		        </div>	</div>
+
+        	);
+    } 
+}            
 
 export default App;
